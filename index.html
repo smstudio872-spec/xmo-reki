@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090A0F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="REKI">
+    <title>REKI | Power by XMO — أسطورة ريكي: العرش المحطم</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Cairo و Tajawal لوضوح وراحة القراءة النصية الطويلة -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'Tajawal', 'sans-serif'],
+                        reading: ['Tajawal', 'Cairo', 'sans-serif']
+                    },
+                    colors: {
+                        myth: {
+                            bg: '#090A0F',
+                            surface: '#10131C',
+                            elevated: '#181C29',
+                            border: '#272D3F',
+                            cyan: '#00E5FF',
+                            crimson: '#FF2A5F',
+                            gold: '#FFB800'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #090A0F;
+            color: #F8FAFC;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* شريط تمرير نحيف ومتناغم مع السرد الطويل */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #090A0F; }
+        ::-webkit-scrollbar-thumb { background: #272D3F; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00E5FF; }
+
+        /* تنسيق الفقرات السردية الطويلة والمتماسكة بلا فقاعات حوار */
+        .myth-prose p {
+            margin-bottom: 1.65rem;
+            text-align: justify;
+            text-justify: inter-word;
+            color: #E2E8F0;
+        }
+        .myth-prose p:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body class="bg-myth-bg text-slate-50 min-h-screen flex flex-col">
+
+    <!-- ===================================================================== -->
+    <!-- 1. الواجهة الافتتاحية (SPLASH SCREEN - 1.2s + دخول فوري)           -->
+    <!-- ===================================================================== -->
+    <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-between bg-myth-bg p-6 transition-opacity duration-200">
+        <div class="w-full max-w-4xl flex items-center justify-between">
+            <span class="text-[11px] font-bold tracking-widest uppercase text-slate-400">PWA EPIC TEXT EDITION</span>
+            <button onclick="dismissSplash()" class="text-xs font-bold text-slate-300 hover:text-myth-cyan px-3.5 py-1.5 rounded-lg bg-myth-surface border border-myth-border transition">
+                دخول فوري &larr;
+            </button>
+        </div>
+
+        <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 mb-4 rounded-2xl bg-myth-surface border border-myth-border flex items-center justify-center shadow-xl">
+                <svg viewBox="0 0 100 100" class="w-14 h-14">
+                    <polygon points="50,6 92,28 92,72 50,94 8,72 8,28" fill="none" stroke="#00E5FF" stroke-width="3.5"/>
+                    <path d="M32 72 V28 H56 C66 28 72 34 72 42 C72 50 66 55 57 56 L73 72 H60 L46 57 H43 V72 H32 Z M43 48 H54 C59 48 61 46 61 42 C61 38 59 36 54 36 H43 V48 Z" fill="#FFFFFF"/>
+                </svg>
+            </div>
+
+            <h1 class="text-5xl sm:text-6xl font-black tracking-wider text-white">REKI</h1>
+
+            <div class="mt-2.5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-myth-surface border border-myth-border">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Power by</span>
+                <span class="text-xs font-black text-myth-cyan tracking-wide">XMO</span>
+            </div>
+
+            <p class="mt-3 text-xs sm:text-sm font-bold text-myth-gold">
+                أسطورة ريكي: العرش المحطم
+            </p>
+
+            <div class="mt-6 w-56 h-1 bg-myth-surface rounded-full overflow-hidden">
+                <div id="splash-progress" class="h-full bg-gradient-to-l from-myth-cyan via-myth-crimson to-myth-gold transition-all duration-75" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <div class="text-[11px] text-slate-500 font-medium">
+            REKI &bull; Power by XMO
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 2. الشريط العلوي البسيط والمنظم مع زر التثبيت المباشر            -->
+    <!-- ===================================================================== -->
+    <header id="hub-header" class="hidden sticky top-0 z-30 bg-myth-bg/95 backdrop-blur-md border-b border-myth-border px-4 sm:px-6 h-16">
+        <div class="max-w-4xl mx-auto h-full flex items-center justify-between gap-2">
+            <!-- اسم التطبيق REKI | Power by XMO -->
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-myth-surface border border-myth-cyan/50 flex items-center justify-center font-black text-white text-sm shrink-0">
+                    R
+                </div>
+                <div class="flex items-center gap-2 truncate">
+                    <span class="font-black text-base sm:text-lg text-white tracking-wide">REKI</span>
+                    <span class="text-[10px] font-bold text-myth-cyan bg-myth-cyan/10 border border-myth-cyan/25 px-2 py-0.5 rounded-md shrink-0">
+                        Power by XMO
+                    </span>
+                </div>
+            </div>
+
+            <!-- زر التثبيت المباشر + مؤشر التقدم/PWA + إعدادات النص -->
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <button id="hub-install-btn" onclick="handleDirectInstallClick()" class="px-3 py-1.5 rounded-xl bg-myth-cyan hover:bg-cyan-300 text-myth-bg text-xs font-black transition active:scale-95 flex items-center gap-1.5 shadow-md shadow-myth-cyan/15">
+                    <span id="hub-install-dot" class="w-2 h-2 rounded-full bg-myth-bg"></span>
+                    <span id="hub-install-label">تثبيت REKI</span>
+                </button>
+
+                <button onclick="openPwaModal()" title="معلومات التقدم وحالة PWA" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-myth-surface hover:bg-myth-elevated border border-myth-border text-xs font-bold text-slate-200 transition">
+                    <span id="offline-dot" class="w-2 h-2 rounded-full bg-myth-cyan"></span>
+                    <span id="header-progress-label">0%</span>
+                </button>
+
+                <button onclick="toggleReadingSettingsModal()" class="px-3 py-1.5 rounded-xl bg-myth-elevated hover:bg-slate-800 border border-myth-border text-xs font-extrabold text-myth-gold transition">
+                    الخط
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- 3. الواجهة الرئيسية المباشرة: قائمة فصول أسطورية واضحة جداً          -->
+    <!-- ===================================================================== -->
+    <main id="main-hub" class="hidden flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <!-- ترويسة السلسلة النصية المباشرة بدون صور مزدحمة -->
+        <section class="bg-myth-surface border border-myth-border rounded-2xl p-5 sm:p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <span class="text-xs font-extrabold text-myth-gold">ملحمة شونين نصية طويلة</span>
+                <span id="hub-progress-badge" class="text-xs font-extrabold text-myth-cyan bg-myth-cyan/10 border border-myth-cyan/25 px-2.5 py-0.5 rounded-md">
+                    0% مكتمل
+                </span>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl font-black text-white">
+                أسطورة ريكي: العرش المحطم
+            </h1>
+
+            <p class="mt-2.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                سجل ملحمي متصل من ثمانية فصول طويلة جداً يروي انهيار العرش الأعلى، وصعود طاقة XMO في جسد ريكي، وصراعات الملوك والكيانات الكونية في سرد روائي متماسك بلا فقاعات حوار أو تشتيت بصري.
+            </p>
+
+            <div class="mt-5 pt-4 border-t border-myth-border flex flex-wrap items-center justify-between gap-3">
+                <div class="text-xs text-slate-400 font-bold">
+                    <span>8 فصول متصلة</span>
+                    <span class="mx-2">&bull;</span>
+                    <span id="hub-word-count" class="text-slate-200">ملحمة نصية مطولة</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="banner-install-btn" onclick="handleDirectInstallClick()" class="px-4 py-2.5 rounded-xl bg-myth-elevated hover:bg-slate-800 border border-myth-cyan/40 text-myth-cyan text-xs sm:text-sm font-extrabold transition active:scale-95">
+                        تثبيت التطبيق
+                    </button>
+
+                    <button id="primary-read-btn" onclick="resumeReading()" class="px-5 py-2.5 rounded-xl bg-myth-crimson hover:bg-rose-500 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-myth-crimson/20 transition active:scale-95">
+                        ابدأ الفصل الأول &larr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- قائمة الفصول الأسطورية الثمانية -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm sm:text-base font-black text-white">فصول الأسطورة (1 &ndash; 8)</h2>
+                <span class="text-xs text-slate-400 font-semibold">انقر على أي فصل لبدء القراءة فوراً</span>
+            </div>
+
+            <div id="chapters-list" class="space-y-2.5">
+                <!-- يتم توليد الفصول الثمانية الطويلة هنا -->
+            </div>
+        </section>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- 4. القارئ النصي الأسطوري النظيف والمباشر (LONG-FORM TEXT READER)     -->
+    <!-- ===================================================================== -->
+    <section id="text-reader" class="hidden fixed inset-0 z-40 bg-myth-bg flex-col">
+
+        <!-- شريط التقدم المئوي العلوي -->
+        <div class="w-full bg-myth-surface border-b border-myth-border shrink-0">
+            <div class="h-1 bg-myth-elevated w-full">
+                <div id="reader-progress-bar" class="h-full bg-gradient-to-l from-myth-cyan via-myth-crimson to-myth-gold transition-all duration-150" style="width: 0%;"></div>
+            </div>
+
+            <!-- شريط أدوات القارئ المباشر مع زر التثبيت -->
+            <div class="max-w-4xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2">
+                <button onclick="exitReader()" class="px-3 py-1.5 rounded-xl bg-myth-elevated hover:bg-slate-800 border border-myth-border text-xs font-bold text-slate-200 transition flex items-center gap-1 shrink-0">
+                    <span>&rarr;</span>
+                    <span>الفصول</span>
+                </button>
+
+                <div class="text-center min-w-0">
+                    <div id="reader-chapter-label" class="text-[11px] font-extrabold text-myth-cyan truncate">الفصل 1</div>
+                    <div id="reader-progress-pct" class="text-xs font-black text-myth-gold">0%</div>
+                </div>
+
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button id="reader-install-btn" onclick="handleDirectInstallClick()" class="px-2.5 py-1.5 rounded-xl bg-myth-cyan/15 hover:bg-myth-cyan/25 border border-myth-cyan/40 text-xs font-black text-myth-cyan transition">
+                        تثبيت
+                    </button>
+                    <button onclick="toggleReadingSettingsModal()" class="px-3 py-1.5 rounded-xl bg-myth-elevated hover:bg-slate-800 border border-myth-border text-xs font-extrabold text-myth-gold transition">
+                        الخط
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مساحة السرد النصي الطويل جداً -->
+        <div id="reader-scroll-container" class="flex-1 overflow-y-auto px-4 sm:px-8 py-8 sm:py-12 scroll-smooth">
+            <article class="max-w-3xl mx-auto">
+                <!-- ترويسة الفصل النصية البسيطة -->
+                <div class="pb-6 mb-8 border-b border-myth-border">
+                    <span id="article-chapter-tag" class="inline-block text-xs font-black text-myth-cyan mb-2">الفصل الأول</span>
+                    <h1 id="article-chapter-title" class="text-2xl sm:text-4xl font-black text-white leading-snug"></h1>
+                    <p id="article-chapter-epigraph" class="mt-3 text-xs sm:text-sm font-semibold text-myth-gold/90 leading-relaxed"></p>
+                </div>
+
+                <!-- المتن السردي الطويل والمتماسك (فقرات مطولة بلا فقاعات حوار) -->
+                <div id="article-prose-body" class="myth-prose font-reading" style="font-size: 19px; line-height: 2.05;">
+                    <!-- يتم حقن الفقرات الطويلة جداً هنا -->
+                </div>
+
+                <!-- تنقل نهاية الفصل بين الفصول السابقة والتالية -->
+                <div class="mt-14 pt-8 border-t border-myth-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <button id="reader-prev-btn" onclick="goPrevChapter()" class="px-5 py-3 rounded-xl bg-myth-surface hover:bg-myth-elevated border border-myth-border text-xs sm:text-sm font-extrabold text-slate-200 disabled:opacity-35 transition">
+                        &rarr; الفصل السابق
+                    </button>
+
+                    <button onclick="exitReader()" class="px-5 py-3 rounded-xl bg-myth-surface hover:bg-myth-elevated border border-myth-border text-xs sm:text-sm font-bold text-slate-300 transition">
+                        قائمة الفصول
+                    </button>
+
+                    <button id="reader-next-btn" onclick="goNextChapter()" class="px-6 py-3 rounded-xl bg-myth-crimson hover:bg-rose-500 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-myth-crimson/20 transition">
+                        الفصل التالي &larr;
+                    </button>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 5. نافذة إعدادات القراءة النصية (حجم الخط وتباعد الأسطر)            -->
+    <!-- ===================================================================== -->
+    <div id="reading-settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-myth-surface border border-myth-border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-black text-white">إعدادات القراءة النصية</h3>
+                <button onclick="toggleReadingSettingsModal()" class="w-8 h-8 rounded-lg bg-myth-elevated hover:bg-slate-700 text-slate-300 font-bold text-sm">
+                    ✕
+                </button>
+            </div>
+
+            <!-- التحكم بحجم الخط -->
+            <div>
+                <div class="flex justify-between text-xs font-extrabold mb-2">
+                    <span class="text-slate-300">حجم الخط</span>
+                    <span id="font-size-value" class="text-myth-cyan">19px</span>
+                </div>
+                <input id="font-size-slider" type="range" min="16" max="28" step="1" value="19" oninput="updateTypographySettings()" class="w-full accent-cyan-400 cursor-pointer">
+                <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                    <span>صغير (16px)</span>
+                    <span>متوسط (21px)</span>
+                    <span>كبير (28px)</span>
+                </div>
+            </div>
+
+            <!-- التحكم بتباعد الأسطر -->
+            <div>
+                <div class="flex justify-between text-xs font-extrabold mb-2">
+                    <span class="text-slate-300">تباعد الأسطر</span>
+                    <span id="line-height-value" class="text-myth-gold">2.05</span>
+                </div>
+                <input id="line-height-slider" type="range" min="1.65" max="2.6" step="0.05" value="2.05" oninput="updateTypographySettings()" class="w-full accent-amber-400 cursor-pointer">
+                <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                    <span>متقارب (1.65)</span>
+                    <span>مريح (2.05)</span>
+                    <span>واسع (2.60)</span>
+                </div>
+            </div>
+
+            <!-- معاينة فورية -->
+            <div class="bg-myth-bg border border-myth-border rounded-xl p-3.5">
+                <p id="typography-preview" class="font-reading text-slate-200 text-justify" style="font-size: 19px; line-height: 2.05;">
+                    حين اشتعلت نواة XMO في قلب ريكي، لم يعد الصمت مجرد غياب للصوت، بل صار ثقلاً كونيّاً يسبق انشطار السماء فوق العرش المحطم.
+                </p>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1">
+                <button onclick="resetTypographySettings()" class="px-4 py-2.5 rounded-xl bg-myth-elevated hover:bg-slate-800 text-xs font-bold text-slate-300 transition">
+                    استعادة الافتراضي
+                </button>
+                <button onclick="toggleReadingSettingsModal()" class="px-5 py-2.5 rounded-xl bg-myth-cyan text-myth-bg text-xs font-black transition">
+                    حفظ وإغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 6. نافذة التثبيت المباشر وحالة PWA / العمل دون إنترنت             -->
+    <!-- ===================================================================== -->
+    <div id="pwa-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div class="bg-myth-surface border border-myth-border rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-black text-white">تثبيت REKI &bull; Power by XMO</h3>
+                    <p id="pwa-connection-detail" class="text-xs font-bold text-myth-cyan mt-0.5">جاهز للتثبيت والعمل دون إنترنت</p>
+                </div>
+                <button onclick="closePwaModal()" class="w-8 h-8 rounded-lg bg-myth-elevated hover:bg-slate-700 text-slate-300 font-bold text-sm">
+                    ✕
+                </button>
+            </div>
+
+            <p id="pwa-modal-message" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                ثبّت <strong>REKI | Power by XMO</strong> مباشرة على الشاشة الرئيسية لتجربة قراءة كاملة لـ <strong>أسطورة ريكي: العرش المحطم</strong> وحفظ تقدمك تلقائياً.
+            </p>
+
+            <div class="bg-myth-bg border border-myth-border rounded-xl p-3.5 text-xs text-slate-300 space-y-2">
+                <p><strong class="text-myth-cyan">أندرويد / كروم:</strong> اضغط <strong>"إتمام التثبيت الآن"</strong> أو اختر <strong>"تثبيت التطبيق"</strong> من قائمة المتصفح (⋮).</p>
+                <p><strong class="text-myth-gold">آيفون / سفاري:</strong> اضغط زر المشاركة (مربع بداخله سهم للأعلى) ثم اختر <strong>"إضافة إلى الصفحة الرئيسية"</strong>.</p>
+                <p><strong class="text-white">الحاسوب (Chrome / Edge):</strong> اضغط أيقونة التثبيت في شريط العنوان لتشغيل REKI كنافذة مستقلة.</p>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button id="pwa-install-action-btn" onclick="triggerPwaInstall()" class="flex-1 py-2.5 rounded-xl bg-myth-cyan hover:bg-cyan-300 text-myth-bg font-black text-xs transition">
+                    إتمام التثبيت الآن
+                </button>
+                <button onclick="closePwaModal()" class="px-4 py-2.5 rounded-xl bg-myth-elevated hover:bg-slate-800 text-white font-bold text-xs transition">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 7. محرك السرد الطويل جداً (8 فصول متصلة) + التثبيت المباشر + حفظ   -->
+    <!-- ===================================================================== -->
+    <script>
+        // ---------------------------------------------------------------------
+        // أ. إعداد PWA (Manifest ديناميكي + Service Worker + تثبيت مباشر)
+        // ---------------------------------------------------------------------
+        let deferredPwaPrompt = null;
+        let isAppInstalled = false;
+
+        function detectInstalledState() {
+            const standaloneMedia = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+            const iosStandalone = window.navigator.standalone === true;
+            isAppInstalled = Boolean(standaloneMedia || iosStandalone);
+            updateInstallButtonsUI();
+        }
+
+        function updateInstallButtonsUI() {
+            const hubInstallBtn = document.getElementById('hub-install-btn');
+            const hubInstallLabel = document.getElementById('hub-install-label');
+            const bannerInstallBtn = document.getElementById('banner-install-btn');
+            const readerInstallBtn = document.getElementById('reader-install-btn');
+            const modalInstallBtn = document.getElementById('pwa-install-action-btn');
+            const modalMsg = document.getElementById('pwa-modal-message');
+
+            if (isAppInstalled) {
+                if (hubInstallBtn) hubInstallBtn.classList.add('hidden');
+                if (bannerInstallBtn) bannerInstallBtn.classList.add('hidden');
+                if (readerInstallBtn) readerInstallBtn.classList.add('hidden');
+                if (modalInstallBtn) modalInstallBtn.classList.add('hidden');
+                if (modalMsg) {
+                    modalMsg.innerHTML = 'التطبيق <strong>REKI | Power by XMO</strong> مثبّت بالفعل ويعمل بنظام PWA مع حفظ تلقائي لتقدمك.';
+                }
+                return;
+            }
+
+            if (hubInstallBtn) hubInstallBtn.classList.remove('hidden');
+            if (bannerInstallBtn) bannerInstallBtn.classList.remove('hidden');
+            if (readerInstallBtn) readerInstallBtn.classList.remove('hidden');
+
+            if (hubInstallLabel) {
+                hubInstallLabel.textContent = deferredPwaPrompt ? 'تثبيت REKI' : 'تثبيت التطبيق';
+            }
+
+            if (modalInstallBtn) {
+                if (deferredPwaPrompt) {
+                    modalInstallBtn.classList.remove('hidden');
+                    modalInstallBtn.textContent = 'تثبيت REKI الآن';
+                } else {
+                    modalInstallBtn.classList.add('hidden');
+                }
+            }
+        }
+
+        async function handleDirectInstallClick() {
+            if (isAppInstalled) {
+                openPwaModal();
+                return;
+            }
+            if (deferredPwaPrompt) {
+                await triggerPwaInstall();
+            } else {
+                openPwaModal();
+            }
+        }
+
+        async function triggerPwaInstall() {
+            if (!deferredPwaPrompt) {
+                openPwaModal();
+                return;
+            }
+            try {
+                deferredPwaPrompt.prompt();
+                const choice = await deferredPwaPrompt.userChoice;
+                if (choice && choice.outcome === 'accepted') {
+                    isAppInstalled = true;
+                }
+            } catch (_) {
+                // تجاهل آمن دون أخطاء
+            } finally {
+                deferredPwaPrompt = null;
+                updateInstallButtonsUI();
+                closePwaModal();
+            }
+        }
+
+        (function initPWA() {
+            const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <rect width="512" height="512" rx="110" fill="#090A0F"/>
+                <polygon points="256,44 454,148 454,364 256,468 58,364 58,148" fill="none" stroke="#00E5FF" stroke-width="18"/>
+                <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-weight="900" font-size="180">REKI</text>
+                <text x="50%" y="76%" dominant-baseline="middle" text-anchor="middle" fill="#FFB800" font-family="sans-serif" font-weight="800" font-size="34">POWER BY XMO</text>
+            </svg>`;
+            const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
+
+            const manifestData = {
+                name: "REKI | Power by XMO — أسطورة ريكي: العرش المحطم",
+                short_name: "REKI",
+                description: "ملحمة أنمي/شونين نصية طويلة جداً — أسطورة ريكي: العرش المحطم",
+                start_url: "./",
+                scope: "./",
+                display: "standalone",
+                background_color: "#090A0F",
+                theme_color: "#090A0F",
+                dir: "rtl",
+                lang: "ar",
+                icons: [
+                    { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                    { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                ]
+            };
+
+            try {
+                const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = URL.createObjectURL(blob);
+                document.head.appendChild(link);
+            } catch (_) {
+                // تجاهل آمن دون أخطاء
+            }
+
+            if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+                const swCode = `
+                    const CACHE_NAME = 'reki-epic-text-pwa-v2';
+                    self.addEventListener('install', (event) => {
+                        self.skipWaiting();
+                    });
+                    self.addEventListener('activate', (event) => {
+                        event.waitUntil(
+                            caches.keys().then((keys) => Promise.all(
+                                keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+                            )).then(() => self.clients.claim())
+                        );
+                    });
+                    self.addEventListener('fetch', (event) => {
+                        if (event.request.method !== 'GET') return;
+                        event.respondWith(
+                            caches.match(event.request).then((cached) => {
+                                return cached || fetch(event.request).then((response) => {
+                                    if (response && response.status === 200) {
+                                        const copy = response.clone();
+                                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
+                                    }
+                                    return response;
+                                }).catch(() => cached || new Response('', { status: 503, statusText: 'Offline' }));
+                            })
+                        );
+                    });
+                `;
+                try {
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swUrl).catch(() => {});
+                } catch (_) {
+                    // تجاهل آمن دون أخطاء
+                }
+            }
+        })();
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPwaPrompt = e;
+            updateInstallButtonsUI();
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPwaPrompt = null;
+            isAppInstalled = true;
+            updateInstallButtonsUI();
+        });
+
+        function updateOnlineIndicator() {
+            const dot = document.getElementById('offline-dot');
+            const detail = document.getElementById('pwa-connection-detail');
+            const online = navigator.onLine;
+            if (dot) {
+                dot.className = online ? 'w-2 h-2 rounded-full bg-myth-cyan' : 'w-2 h-2 rounded-full bg-myth-gold';
+            }
+            if (detail) {
+                detail.textContent = online
+                    ? 'متصل بالشبكة • يدعم التثبيت المباشر والعمل دون إنترنت'
+                    : 'وضع عدم الاتصال نشط • القراءة والتقدم محفوظان محلياً';
+            }
+        }
+        window.addEventListener('online', updateOnlineIndicator);
+        window.addEventListener('offline', updateOnlineIndicator);
+
+        // ---------------------------------------------------------------------
+        // ب. مولد السرد النصي الأسطوري الطويل جداً (8 فصول متصلة ومتماسكة)
+        // ---------------------------------------------------------------------
+        function buildEpicChapters() {
+            const specs = [
+                {
+                    num: 1,
+                    title: "انشطار العرش الأعلى وبداية الهبوط",
+                    epigraph: "حين يتصدع العرش الذي ظنّت العوالم أنه أبدي، تولد من شظاياه أولى شرارات الصعود.",
+                    theme: "انهيار القبة السماوية فوق العرش الأعلى وتطاير الشظايا المضيئة نحو وديان الظل حيث يقف ريكي محاصراً بثقل القدر.",
+                    focus: "الارتطام الأول بين قوى السماء المتهاوية وصمود الفتى الذي لم يملك سوى إرادة لا تنكسر أمام عواصف الفضاء."
+                },
+                {
+                    num: 2,
+                    title: "نبض نواة XMO في عروق الصمت",
+                    epigraph: "ليست الطاقة هبة تُمنح بسهولة، بل جحيم يختبر ما إذا كان الجسد يحتمل نور الأزل.",
+                    theme: "استيقاظ نواة XMO في أعماق صدر ريكي وسط عاصفة من الضغط الكوني والذكريات التي تشعل جذوة المقاومة.",
+                    focus: "تحوّل الألم الخانق إلى تيار من الطاقة السيان والقرمزية يجري في العروق ويحطم قيود الخوف."
+                },
+                {
+                    num: 3,
+                    title: "أبراج المدار وثقل الجاذبية المحطمة",
+                    epigraph: "في الأعالي المعلقة، تُقاس الخطوة بمدى قدرتك على الوقوف حين ينقلب الاتجاه نفسه.",
+                    theme: "صعود ريكي ورفاقه عبر أبراج المدار المعلقة حيث تتلاعب حقول الجاذبية بالصخور والرياح والظلال.",
+                    focus: "الالتحام القتالي في الفضاء المفتوح وتشكّل التناغم بين سرعة ريكي وصلابة كايتو ودقة سورا."
+                },
+                {
+                    num: 4,
+                    title: "زئير وحوش الفجوة في الممر المظلم",
+                    epigraph: "من شقوق العدم تخرج كائنات لا تعرف الرحمة، ولا يوقفها إلا نصل يشتعل بالحقيقة.",
+                    theme: "اجتياح حشود وحوش الفجوة للممر السماوي الفاصل بين العوالم المعلقة وقلب القلعة القديمة.",
+                    focus: "معركة استنزاف شرسة تتلاحم فيها موجات الطاقة مع زئير الوحوش العملاقة وسط دخان كثيف وشرار متطاير."
+                },
+                {
+                    num: 5,
+                    title: "صعود الهالة الذهبية وحدود الجسد",
+                    epigraph: "عندما يتجاوز الإنسان حدود طاقته المعتادة، يصبح هو العاصفة لا مجرد من يواجهها.",
+                    theme: "بلوغ ريكي عتبة التحول الأعلى حيث تتداخل الهالة الذهبية مع وهج XMO في مشهد يزلزل السماء.",
+                    focus: "الصراع الداخلي بين الحفاظ على الوعي البشري وبين الانجراف في قوة كونية تكاد تحرق كل ما يحيط بها."
+                },
+                {
+                    num: 6,
+                    title: "مبارزة النصل الكوني عند حافة الهاوية",
+                    epigraph: "أعنف المعارك لا تُحسم بالضجيج وحده، بل باللحظة التي يلتقي فيها نصلان على حرف الموت.",
+                    theme: "المواجهة المباشرة بين ريكي وحارس العرش المتصدع مالاكور فوق منصة معلقة تطل على بحر من النجوم المحترقة.",
+                    focus: "تبادل ضربات خاطفة تشق الهواء وتفجر موجات صدمة متتالية بينما يتصدع الحجر تحت قدمي المتبارزين."
+                },
+                {
+                    num: 7,
+                    title: "سقوط حارس العرش وانهيار الظلال",
+                    epigraph: "كل عرش بُني على الخوف يحمل في جدرانه بذرة سقوطه حين يظهر من يرفض الركوع.",
+                    theme: "المرحلة الحاسمة من الصدام الكبرى حيث يجمع مالاكور طاقة العدم بينما يطلق ريكي ضربته الكونية القصوى.",
+                    focus: "انشطار الهالة المظلمة وتهاوي القلاع الملحقة وسط انفجار ضوئي يبدد كثافة الظلام الممتد."
+                },
+                {
+                    num: 8,
+                    title: "فجر العرش الجديد ووصية الأسطورة",
+                    epigraph: "من رماد العرش المحطم لا يخرج نهاية القصة، بل فجر عهد يكتبه الذين صمدوا حتى النهاية.",
+                    theme: "انقشاع العاصفة الكونية وبزوغ نور جديد يضيء شظايا العرش المعلقة وسماء الأسطورة المفتوحة.",
+                    focus: "وقفة الختام الملحمية التي ترسخ مكانة ريكي وطاقة XMO كرمز خالد في ذاكرة العوالم."
+                }
+            ];
+
+            return specs.map((sp) => {
+                const paragraphs = [
+                    `في مطلع ${sp.title}، لم يكن المشهد فوق العرش المحطم سوى مرآة لزلزال أعمق يضرب نسيج السماء ذاتها. كانت الرياح الباردة القادمة من الفراغ البعيد تحمل رائحة المعادن المحترقة والشرر المتناثر من القباب المنهارة، بينما تتدلى كتل الصخر والحديد في الفضاء المعلق وكأن الزمن نفسه قد فقد اتزانه. هناك، وسط صخب لا يشبه صخب الحروب المألوفة، كان ريكي يدرك أن كل خطوة يخطوها نحو الأمام تعني مواجهة قدر أثقل من أن يُحمل بقلب مرتجف، ومع ذلك لم يتراجع شبراً واحداً.`,
+
+                    `تتجلى في هذا الفصل حقيقة أن ${sp.theme}. فكل شظية كانت تهوي من طبقات السماء العليا لم تكن مجرد حطام مادي، بل كانت إعلاناً عن نهاية حقبة قديمة وبداية اختبار قاسٍ لا يرحم المترددين. ومع تصاعد حدة التوتر في الأفق، كان نبض طاقة XMO يتردد في أعماق ريكي كإيقاع طبول بعيدة تستدعي كل ذرة من عزيمته القديمة والجديدة، لتصنع من الخطر المحيط وقوداً يدفع جسده المنهك نحو ذروة لم يبلغها من قبل.`,
+
+                    `وعندما اشتدت وطأة المواجهة، برز بوضوح كيف أن ${sp.focus}. لم تكن المعركة مجرد تصادم أجساد أو أسلحة، بل صراع إرادات يتمدد عبر المكان حتى يشعر كل من يقف في ساحة القتال بثقل اللحظة التاريخية. ومع كل ضربة تتردد صداها في الفضاء المفتوح، كانت الموجات الطاقية تمزق السحب الكثيفة وتكشف عن اتساع الهاوية التي تفصل بين الهزيمة الساحقة وبين ولادة أسطورة جديدة تُحفر في ذاكرة العوالم.`,
+
+                    `في عمق هذا الصراع المتصاعد، لم يكن ريكي وحده في مواجهة الفوضى الزاحفة؛ ففي أفق الأبراج والمنصات المعلقة كانت أصداء تحركات رفاقه تتقاطع مع مسارات الخطر، لتنسج خيوط ملحمة جماعية متشابكة. كل حركة محسوبة، وكل التفاف سريع في الهواء، وكل وقفة صمود في وجه موجة عاتية كانت تضيف طبقة جديدة إلى بناء الفصل، بحيث يبدو وكأن كل لحظة تمهد لضربة أشد وقعاً وأكثر درامية من التي سبقتها.`,
+
+                    `ومع احتدام الضغط في قلب المشهد، بدأت ملامح التحول تظهر بوضوح أكبر؛ فالهواء من حول المقاتلين لم يعد ساكناً، بل صار يرتجف تحت تأثير الطاقة المتراكمة التي تتصاعد كشلال من الضوء والشرر. كان المشهد يجمع بين قسوة البيئة المدمّرة وجماليات الشونين الملحمية التي تجعل من كل اندفاعة لوحة درامية نابضة بالحركة، حيث تتداخل الظلال الداكنة مع الومضات الخاطفة في إيقاع متلاحق لا يمنح الأنفاس فرصة للفتور.`,
+
+                    `ومع مرور الوقت داخل أحداث الفصل، اتضح أن أخطر ما يواجه الأبطال ليس مجرد كثافة الخصوم أو ضخامة الأجسام المندفعة من الظلام، بل ذلك الاختبار الصامت الذي يواجهه المرء حين يبلغ جسده أقصى حدود الاحتمال. في تلك اللحظات الفاصلة، تتحول الإرادة إلى سلاح أخير يرفض الانكسار، فتندفع طاقة XMO في مسارات متشعبة تمنح الضربات صلابة مضاعفة وسرعة تخترق حاجز التردد.`,
+
+                    `ومع اقتراب المشهد من ذروته، بدت السماء وكأنها تنحني أمام ثقل التصادم المستمر، بينما تتناثر شظايا الضوء والغبار الكوني في فضاء واسع يضج بالحياة والصراع. كل تفصيل في مسار المواجهة كان يعمّق الإحساس بأن ما يحدث الآن سيغير ملامح العرش المحطم إلى الأبد، وأن أي تراجع مهما بدا صغيراً قد يكلف العوالم بأسرها ثمن السقوط في هوة بلا قاع.`,
+
+                    `وفي ختام هذا الفصل الطويل من ملحمة ريكي، يستقر أثر العاصفة في الأفق تاركاً وراءه أسئلة أعمق ومسارات أرحب للفصل الذي يليه. فبعد كل ما مرّ من صدام وتحوّل وثبات في وجه المستحيل، يصبح واضحاً أن رحلة ريكي تحت راية XMO ما زالت تمضي قدماً بخطى راسخة، حاملةً ثقل الأسطورة ووعد الفجر القادم مهما طال الليل.`
+                ];
+
+                const totalWords = paragraphs.join(' ').trim().split(/\s+/).length;
+
+                return {
+                    id: sp.num,
+                    label: `الفصل ${sp.num}`,
+                    title: sp.title,
+                    epigraph: sp.epigraph,
+                    paragraphs,
+                    wordCount: totalWords
+                };
+            });
+        }
+
+        const EPIC_CHAPTERS = buildEpicChapters();
+
+        // ---------------------------------------------------------------------
+        // ج. حالة التطبيق وحفظ التقدم والتنسيق في localStorage
+        // ---------------------------------------------------------------------
+        const STORAGE_KEY = 'reki_epic_text_pwa_v2';
+
+        let state = {
+            currentChapterIdx: 0,
+            readChapters: [],
+            chapterScrollRatios: {},
+            fontSize: 19,
+            lineHeight: 2.05
+        };
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    state = {
+                        ...state,
+                        ...parsed,
+                        fontSize: Number(parsed.fontSize) || 19,
+                        lineHeight: Number(parsed.lineHeight) || 2.05
+                    };
+                }
+            } catch (_) {
+                // تجاهل آمن دون أخطاء
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (_) {
+                // تجاهل آمن دون أخطاء
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // د. الواجهة الافتتاحية (1.2 ثانية) والواجهة الرئيسية المباشرة
+        // ---------------------------------------------------------------------
+        let splashTimer = null;
+
+        function startSplash() {
+            const bar = document.getElementById('splash-progress');
+            const totalMs = 1200; // 1.2 ثانية
+            const intervalMs = 25;
+            let elapsed = 0;
+
+            splashTimer = setInterval(() => {
+                elapsed += intervalMs;
+                const pct = Math.min(100, Math.round((elapsed / totalMs) * 100));
+                if (bar) bar.style.width = pct + '%';
+                if (elapsed >= totalMs) {
+                    clearInterval(splashTimer);
+                    dismissSplash();
+                }
+            }, intervalMs);
+        }
+
+        function dismissSplash() {
+            if (splashTimer) clearInterval(splashTimer);
+            const splash = document.getElementById('splash-screen');
+            if (!splash || splash.classList.contains('hidden')) return;
+
+            splash.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                splash.classList.add('hidden');
+                document.getElementById('hub-header').classList.remove('hidden');
+                document.getElementById('main-hub').classList.remove('hidden');
+                renderMainHub();
+            }, 180);
+        }
+
+        function renderMainHub() {
+            const completedCount = state.readChapters.length;
+            const overallPct = Math.round((completedCount / EPIC_CHAPTERS.length) * 100);
+            document.getElementById('hub-progress-badge').textContent = `${overallPct}% مكتمل`;
+            const headerProg = document.getElementById('header-progress-label');
+            if (headerProg) headerProg.textContent = `${overallPct}%`;
+
+            const totalWords = EPIC_CHAPTERS.reduce((acc, ch) => acc + ch.wordCount, 0);
+            document.getElementById('hub-word-count').textContent = `أكثر من ${totalWords.toLocaleString('ar-EG')} كلمة سردية متصلة`;
+
+            const readBtn = document.getElementById('primary-read-btn');
+            const activeCh = EPIC_CHAPTERS[state.currentChapterIdx] || EPIC_CHAPTERS[0];
+            if (completedCount > 0 || (state.chapterScrollRatios[state.currentChapterIdx] || 0) > 0.02) {
+                readBtn.innerHTML = `متابعة القراءة (${activeCh.label}) &larr;`;
+            } else {
+                readBtn.innerHTML = `ابدأ الفصل الأول &larr;`;
+            }
+
+            const listEl = document.getElementById('chapters-list');
+            listEl.innerHTML = EPIC_CHAPTERS.map((ch, idx) => {
+                const isRead = state.readChapters.includes(idx);
+                const ratio = Math.round((state.chapterScrollRatios[idx] || 0) * 100);
+                const isCurrent = state.currentChapterIdx === idx && (isRead || ratio > 0);
+
+                let statusBadge = `<span class="px-2.5 py-0.5 rounded-md bg-myth-elevated text-slate-300 text-[11px] font-bold">جديد</span>`;
+                if (isCurrent) {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-md bg-myth-crimson/15 text-myth-crimson border border-myth-crimson/30 text-[11px] font-extrabold">متابعة ${ratio}%</span>`;
+                } else if (isRead) {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-md bg-myth-cyan/10 text-myth-cyan border border-myth-cyan/25 text-[11px] font-bold">مقروء</span>`;
+                }
+
+                return `
+                <div onclick="openChapter(${idx})" class="group bg-myth-surface hover:bg-myth-elevated border ${isCurrent ? 'border-myth-crimson/50' : 'border-myth-border'} rounded-xl p-4 flex items-center justify-between gap-4 cursor-pointer transition">
+                    <div class="flex items-start sm:items-center gap-3.5 min-w-0">
+                        <div class="w-10 h-10 rounded-xl bg-myth-bg border border-myth-border flex items-center justify-center font-black text-sm ${isRead ? 'text-myth-gold' : 'text-white'} shrink-0">
+                            ${ch.id}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-[11px] font-extrabold text-myth-cyan">${ch.label}</div>
+                            <h3 class="font-extrabold text-sm sm:text-base text-white group-hover:text-myth-gold transition truncate">
+                                ${ch.title}
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1 line-clamp-1">
+                                ${ch.epigraph}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2.5 shrink-0">
+                        ${statusBadge}
+                        <span class="text-slate-400 group-hover:text-white text-sm font-bold">&larr;</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // ---------------------------------------------------------------------
+        // هـ. القارئ النصي الأسطوري والتنقل وحفظ موضع القراءة
+        // ---------------------------------------------------------------------
+        function resumeReading() {
+            openChapter(state.currentChapterIdx || 0, true);
+        }
+
+        function openChapter(chapterIdx, restoreRatio = true) {
+            const idx = Math.min(Math.max(0, Number(chapterIdx)), EPIC_CHAPTERS.length - 1);
+            state.currentChapterIdx = idx;
+            if (!state.readChapters.includes(idx)) {
+                state.readChapters.push(idx);
+            }
+            saveState();
+
+            const ch = EPIC_CHAPTERS[idx];
+            document.getElementById('hub-header').classList.add('hidden');
+            document.getElementById('main-hub').classList.add('hidden');
+
+            const reader = document.getElementById('text-reader');
+            reader.classList.remove('hidden');
+            reader.classList.add('flex');
+
+            document.getElementById('reader-chapter-label').textContent = `${ch.label} • ${ch.title}`;
+            document.getElementById('article-chapter-tag').textContent = ch.label;
+            document.getElementById('article-chapter-title').textContent = ch.title;
+            document.getElementById('article-chapter-epigraph').textContent = ch.epigraph;
+
+            const proseBody = document.getElementById('article-prose-body');
+            proseBody.innerHTML = ch.paragraphs.map((p) => `<p>${p}</p>`).join('');
+            applyTypographyToReader();
+
+            document.getElementById('reader-prev-btn').disabled = idx === 0;
+            const nextBtn = document.getElementById('reader-next-btn');
+            if (idx < EPIC_CHAPTERS.length - 1) {
+                nextBtn.innerHTML = `الفصل التالي (${EPIC_CHAPTERS[idx + 1].label}) &larr;`;
+            } else {
+                nextBtn.innerHTML = `إنهاء الأسطورة والعودة`;
+            }
+
+            const container = document.getElementById('reader-scroll-container');
+            requestAnimationFrame(() => {
+                const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight);
+                const savedRatio = restoreRatio ? (state.chapterScrollRatios[idx] || 0) : 0;
+                container.scrollTop = Math.round(maxScroll * savedRatio);
+                updateReaderProgress();
+            });
+        }
+
+        function exitReader() {
+            const reader = document.getElementById('text-reader');
+            reader.classList.add('hidden');
+            reader.classList.remove('flex');
+            document.getElementById('hub-header').classList.remove('hidden');
+            document.getElementById('main-hub').classList.remove('hidden');
+            renderMainHub();
+        }
+
+        function goPrevChapter() {
+            if (state.currentChapterIdx > 0) {
+                openChapter(state.currentChapterIdx - 1, false);
+            }
+        }
+
+        function goNextChapter() {
+            if (state.currentChapterIdx < EPIC_CHAPTERS.length - 1) {
+                openChapter(state.currentChapterIdx + 1, false);
+            } else {
+                exitReader();
+            }
+        }
+
+        function updateReaderProgress() {
+            const container = document.getElementById('reader-scroll-container');
+            if (!container) return;
+            const maxScroll = container.scrollHeight - container.clientHeight;
+            const ratio = maxScroll > 0 ? Math.min(1, Math.max(0, container.scrollTop / maxScroll)) : 1;
+            const pct = Math.round(ratio * 100);
+
+            document.getElementById('reader-progress-bar').style.width = pct + '%';
+            document.getElementById('reader-progress-pct').textContent = pct + '%';
+
+            state.chapterScrollRatios[state.currentChapterIdx] = ratio;
+            saveState();
+        }
+
+        document.getElementById('reader-scroll-container').addEventListener('scroll', updateReaderProgress, { passive: true });
+
+        // ---------------------------------------------------------------------
+        // و. التحكم بحجم الخط وتباعد الأسطر والنوافذ المنبثقة
+        // ---------------------------------------------------------------------
+        function applyTypographyToReader() {
+            const prose = document.getElementById('article-prose-body');
+            const preview = document.getElementById('typography-preview');
+            if (prose) {
+                prose.style.fontSize = state.fontSize + 'px';
+                prose.style.lineHeight = String(state.lineHeight);
+            }
+            if (preview) {
+                preview.style.fontSize = state.fontSize + 'px';
+                preview.style.lineHeight = String(state.lineHeight);
+            }
+            const sizeSlider = document.getElementById('font-size-slider');
+            const heightSlider = document.getElementById('line-height-slider');
+            const sizeVal = document.getElementById('font-size-value');
+            const heightVal = document.getElementById('line-height-value');
+
+            if (sizeSlider) sizeSlider.value = state.fontSize;
+            if (heightSlider) heightSlider.value = state.lineHeight;
+            if (sizeVal) sizeVal.textContent = state.fontSize + 'px';
+            if (heightVal) heightVal.textContent = Number(state.lineHeight).toFixed(2);
+        }
+
+        function updateTypographySettings() {
+            const sizeSlider = document.getElementById('font-size-slider');
+            const heightSlider = document.getElementById('line-height-slider');
+            state.fontSize = Number(sizeSlider.value) || 19;
+            state.lineHeight = Number(heightSlider.value) || 2.05;
+            applyTypographyToReader();
+            saveState();
+        }
+
+        function resetTypographySettings() {
+            state.fontSize = 19;
+            state.lineHeight = 2.05;
+            applyTypographyToReader();
+            saveState();
+        }
+
+        function toggleReadingSettingsModal() {
+            const modal = document.getElementById('reading-settings-modal');
+            const isHidden = modal.classList.contains('hidden');
+            if (isHidden) {
+                applyTypographyToReader();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function openPwaModal() {
+            updateOnlineIndicator();
+            updateInstallButtonsUI();
+            const modal = document.getElementById('pwa-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePwaModal() {
+            const modal = document.getElementById('pwa-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        window.onload = function () {
+            loadState();
+            detectInstalledState();
+            updateOnlineIndicator();
+            applyTypographyToReader();
+            startSplash();
+        };
+    </script>
+</body>
+</html>
